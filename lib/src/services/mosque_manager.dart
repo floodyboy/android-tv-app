@@ -240,13 +240,31 @@ class MosqueManager extends ChangeNotifier with WeatherMixin, AudioMixin, Mosque
           return;
         }
 
-        logger.i('Prayer times received - scheduling prayers');
+        logger.i('Prayer times received - checking permissions');
         _lastPrayerScheduleTime = now;
 
         final service = FlutterBackgroundService();
-        final permissionsGranted = await PermissionsManager.arePermissionsGranted();
 
+        // Check if device should auto-initialize permissions
+        final shouldAutoInitialize = await PermissionsManager.shouldAutoInitializePermissions();
+        logger.i('Should auto-initialize permissions: $shouldAutoInitialize');
+
+        // Check permissions first
+        bool permissionsGranted = await PermissionsManager.arePermissionsGranted();
+
+        if (!permissionsGranted && shouldAutoInitialize) {
+          // Only auto-initialize for rooted devices OR Android < 14
+          logger.i('Auto-initializing permissions (rooted or Android < 14)');
+          await PermissionsManager.initializePermissions();
+
+          // Check again after request attempt
+          permissionsGranted = await PermissionsManager.arePermissionsGranted();
+        }
+
+        // Only run permission-dependent features if permissions are granted
         if (permissionsGranted) {
+          logger.i('✅ Permissions granted - proceeding with scheduling');
+
           await PrayerScheduleService.schedulePrayerTasks(
             e,
             mosqueConfig,
@@ -254,9 +272,18 @@ class MosqueManager extends ChangeNotifier with WeatherMixin, AudioMixin, Mosque
             salahIndex,
             service,
           );
-        }
-        await ToggleScreenFeature.checkAndRescheduleIfNeeded();
 
+          await ToggleScreenFeature.checkAndRescheduleIfNeeded();
+
+          logger.i('✅ Prayer scheduling and screen toggle completed');
+        } else {
+          logger.i('❌ Permissions not granted - skipping prayer scheduling and screen toggle');
+          if (!shouldAutoInitialize) {
+            logger.i('ℹ️ Non-rooted Android 14+ device - user must enable notifications via onboarding screen');
+          }
+        }
+
+        // Always notify listeners so UI updates with prayer times
         notifyListeners();
       },
       onError: onItemError,

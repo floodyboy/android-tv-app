@@ -120,6 +120,7 @@ class UnifiedBackgroundService with WidgetsBindingObserver {
       androidConfiguration: AndroidConfiguration(
         onStart: onStart,
         autoStart: true,
+        autoStartOnBoot: false,
         isForegroundMode: true,
       ),
       iosConfiguration: IosConfiguration(
