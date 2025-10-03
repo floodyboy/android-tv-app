@@ -159,6 +159,7 @@ class _OnBoardingScreenState extends riverpod.ConsumerState<OnBoardingScreen> {
         animation: 'search',
         widget: MosqueSearch(
           nextButtonFocusNode: Some(nextButtonFocusNode),
+          isOnboarding: true,
           onDone: () {},
         ),
         enableNextButton: true,
