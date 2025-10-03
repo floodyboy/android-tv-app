@@ -169,6 +169,7 @@ class _OnBoardingScreenState extends riverpod.ConsumerState<OnBoardingScreen> {
         widget: MosqueInputId(
           onDone: () {},
           selectedNode: Some(nextButtonFocusNode),
+          isOnboarding: true,
         ),
         enableNextButton: true,
         enablePreviousButton: true,

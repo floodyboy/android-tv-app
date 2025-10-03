@@ -3,14 +3,19 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:fpdart/fpdart.dart';
+import 'package:fpdart/fpdart.dart' hide State;
 import 'package:google_fonts/google_fonts.dart';
 import 'package:mawaqit/i18n/l10n.dart';
 import 'package:mawaqit/main.dart';
 import 'package:mawaqit/src/models/mosque.dart';
+import 'package:mawaqit/src/pages/mosque_search/widgets/permission_screen_with_button.dart';
 import 'package:mawaqit/src/services/mosque_manager.dart';
+import 'package:mawaqit/src/services/permissions_manager.dart';
+import 'package:mawaqit/src/services/user_preferences_manager.dart';
 import 'package:mawaqit/src/state_management/on_boarding/on_boarding.dart';
 import 'package:mawaqit/src/widgets/mosque_simple_tile.dart';
+import 'package:mawaqit/src/pages/onBoarding/widgets/on_boarding_permission_adhan_screen.dart';
+import 'package:page_transition/page_transition.dart';
 import 'package:provider/provider.dart';
 import 'package:fpdart/fpdart.dart' as fp;
 import '../../../../i18n/AppLanguage.dart';
@@ -26,16 +31,18 @@ class ChromeCastMosqueInputId extends ConsumerStatefulWidget {
     Key? key,
     this.onDone,
     this.selectedNode = const None(),
+    this.isOnboarding = false,
   }) : super(key: key);
 
   final void Function()? onDone;
   final Option<FocusNode> selectedNode;
+  final bool isOnboarding;
 
   @override
-  ConsumerState<ChromeCastMosqueInputId> createState() => _MosqueInputIdState();
+  ConsumerState<ChromeCastMosqueInputId> createState() => _ChromeCastMosqueInputIdState();
 }
 
-class _MosqueInputIdState extends ConsumerState<ChromeCastMosqueInputId> {
+class _ChromeCastMosqueInputIdState extends ConsumerState<ChromeCastMosqueInputId> {
   final inputController = TextEditingController();
   Mosque? searchOutput;
   SharedPref sharedPref = SharedPref();
@@ -61,13 +68,11 @@ class _MosqueInputIdState extends ConsumerState<ChromeCastMosqueInputId> {
 
   void _onFocusChange() {
     if (!_focus.hasFocus && isKeyboardVisible) {
-      // The focus was lost, which might indicate keyboard was closed
       isKeyboardVisible = false;
       showKeyboard = false;
       inputHasFocus = false;
       FocusScope.of(context).focusInDirection(TraversalDirection.up);
     } else if (_focus.hasFocus && !isKeyboardVisible) {
-      // Focus gained, keyboard likely opened
       isKeyboardVisible = true;
       showKeyboard = true;
       inputHasFocus = true;
@@ -91,7 +96,6 @@ class _MosqueInputIdState extends ConsumerState<ChromeCastMosqueInputId> {
     await mosqueManager.searchMosqueWithId(mosqueId).then((value) {
       setState(() {
         showKeyboard = false;
-
         searchOutput = value;
         loading = false;
       });
@@ -111,9 +115,75 @@ class _MosqueInputIdState extends ConsumerState<ChromeCastMosqueInputId> {
     });
   }
 
-  onboardingWorkflowDone() {
-    sharedPref.save('boarding', 'true');
-    AppRouter.pushReplacement(OfflineHomeScreen());
+  Future<void> _handleMosqueSelection() async {
+    final mosqueManager = context.read<MosqueManager>();
+
+    try {
+      await mosqueManager.setMosqueUUid(searchOutput!.uuid.toString());
+
+      final hadithLangCode = await context.read<AppLanguage>().getHadithLanguage(mosqueManager);
+      ref.read(randomHadithNotifierProvider.notifier).fetchAndCacheHadith(language: hadithLangCode);
+
+      if (searchOutput != null) {
+        if (searchOutput?.type == "MOSQUE") {
+          ref.read(mosqueManagerProvider.notifier).state = fp.Option.fromNullable(SearchSelectionType.mosque);
+        } else {
+          ref.read(mosqueManagerProvider.notifier).state = fp.Option.fromNullable(SearchSelectionType.home);
+        }
+      }
+
+      if (!widget.isOnboarding && searchOutput?.type != "MOSQUE") {
+        await _checkAndShowPermissionScreen();
+      } else {
+        widget.onDone?.call();
+      }
+    } catch (e, stack) {
+      if (e is InvalidMosqueId) {
+        setState(() {
+          loading = false;
+          error = S.of(context).slugError;
+        });
+      } else {
+        setState(() {
+          loading = false;
+          error = S.of(context).backendError;
+        });
+      }
+    }
+  }
+
+  Future<void> _checkAndShowPermissionScreen() async {
+    if (!mounted) return;
+
+    final isRooted = await PermissionsManager.shouldAutoInitializePermissions();
+
+    if (isRooted) {
+      widget.onDone?.call();
+      return;
+    }
+
+    final permissionsGranted = await PermissionsManager.arePermissionsGranted();
+
+    if (!permissionsGranted) {
+      if (!mounted) return;
+
+      await Navigator.push(
+        context,
+        PageTransition(
+          type: PageTransitionType.fade,
+          alignment: Alignment.center,
+          child: PermissionScreenWithButton(
+            selectedNode: widget.selectedNode,
+          ),
+        ),
+      );
+
+      if (mounted) {
+        widget.onDone?.call();
+      }
+    } else {
+      widget.onDone?.call();
+    }
   }
 
   String applyNameMask(String value) {
@@ -146,7 +216,7 @@ class _MosqueInputIdState extends ConsumerState<ChromeCastMosqueInputId> {
                     keyboardType: KeyboardType.numeric,
                     controller: inputController,
                     applyMask: applyNameMask,
-                    onSubmit: _setMosqueId, // Pass the callback function
+                    onSubmit: _setMosqueId,
                   ).animate().slideY(begin: 1).fade()
                 : SizedBox(),
             if (searchOutput != null)
@@ -156,35 +226,7 @@ class _MosqueInputIdState extends ConsumerState<ChromeCastMosqueInputId> {
                 autoFocus: true,
                 mosque: searchOutput!,
                 selectedNode: widget.selectedNode,
-                onTap: () {
-                  return context.read<MosqueManager>().setMosqueUUid(searchOutput!.uuid.toString()).then((value) async {
-                    final mosqueManager = context.read<MosqueManager>();
-                    final hadithLangCode = await context.read<AppLanguage>().getHadithLanguage(mosqueManager);
-                    ref.read(randomHadithNotifierProvider.notifier).fetchAndCacheHadith(language: hadithLangCode);
-                    !context.read<MosqueManager>().typeIsMosque ? onboardingWorkflowDone() : widget.onDone?.call();
-                    if (searchOutput != null) {
-                      if (searchOutput?.type == "MOSQUE") {
-                        ref.read(mosqueManagerProvider.notifier).state =
-                            fp.Option.fromNullable(SearchSelectionType.mosque);
-                      } else {
-                        ref.read(mosqueManagerProvider.notifier).state =
-                            fp.Option.fromNullable(SearchSelectionType.home);
-                      }
-                    }
-                  }).catchError((e, stack) {
-                    if (e is InvalidMosqueId) {
-                      setState(() {
-                        loading = false;
-                        error = S.of(context).slugError;
-                      });
-                    } else {
-                      setState(() {
-                        loading = false;
-                        error = S.of(context).backendError;
-                      });
-                    }
-                  });
-                },
+                onTap: _handleMosqueSelection,
               ).animate().slideY(begin: 1).fade(),
           ],
         ),

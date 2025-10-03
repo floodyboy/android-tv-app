@@ -139,9 +139,18 @@ class MosqueManager extends ChangeNotifier with WeatherMixin, AudioMixin, Mosque
     notifyListeners();
   }
 
+  void _resetPrayerScheduleTimer() {
+    _lastPrayerScheduleTime = null;
+    logger.i('Prayer schedule timer reset - will reschedule on next times update');
+  }
+
   /// update mosque id in the app and shared preference
   Future<void> setMosqueUUid(String uuid) async {
     try {
+      if (mosqueUUID != null && mosqueUUID != uuid) {
+        await PrayerScheduleService.clearAllScheduledPrayers();
+      }
+      _resetPrayerScheduleTimer();
       await fetchMosque(uuid);
 
       _saveToLocale();
