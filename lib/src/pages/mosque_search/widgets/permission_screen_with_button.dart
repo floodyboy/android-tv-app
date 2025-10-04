@@ -29,7 +29,7 @@ class _PermissionScreenWithButtonState extends State<PermissionScreenWithButton>
 
     try {
       // Schedule notifications if user enabled them
-      await OnBoardingPermissionAdhanScreen.scheduleIfEnabled(context);
+      await PermissionAdhanScreen.scheduleIfEnabled(context);
 
       // Close the screen
       if (mounted) {
@@ -53,7 +53,7 @@ class _PermissionScreenWithButtonState extends State<PermissionScreenWithButton>
         children: [
           Expanded(
             child: Center(
-              child: OnBoardingPermissionAdhanScreen(
+              child: PermissionAdhanScreen(
                 isOnboarding: false,
                 nextButtonFocusNode: widget.selectedNode,
               ),

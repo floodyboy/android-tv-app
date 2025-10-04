@@ -141,7 +141,7 @@ class OnboardingNavigationNotifier extends AsyncNotifier<OnboardingNavigationSta
       if (isCompleted) {
         final currentScreenType = currentState.currentScreenType;
         if (currentScreenType == OnboardingScreenType.permissionAdhanBackgroundNotification) {
-          await OnBoardingPermissionAdhanScreen.scheduleIfEnabled(context);
+          await PermissionAdhanScreen.scheduleIfEnabled(context);
         }
         completeOnboarding(context);
         state = AsyncData(

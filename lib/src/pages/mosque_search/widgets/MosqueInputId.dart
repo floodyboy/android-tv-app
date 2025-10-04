@@ -15,6 +15,7 @@ import 'package:mawaqit/src/services/user_preferences_manager.dart';
 import 'package:mawaqit/src/state_management/on_boarding/on_boarding.dart';
 import 'package:mawaqit/src/widgets/mosque_simple_tile.dart';
 import 'package:mawaqit/src/pages/onBoarding/widgets/on_boarding_permission_adhan_screen.dart';
+import 'package:mawaqit/src/widgets/permissionScreenNavigator.dart';
 import 'package:page_transition/page_transition.dart';
 import 'package:provider/provider.dart';
 import 'package:sizer/sizer.dart';
@@ -133,7 +134,11 @@ class _MosqueInputIdState extends ConsumerState<MosqueInputId> {
       // Only check permissions if NOT in onboarding flow
       // In onboarding, the permission screen is a separate step
       if (!widget.isOnboarding && searchOutput?.type != "MOSQUE") {
-        await _checkAndShowPermissionScreen();
+        await PermissionScreenNavigator.checkAndShowPermissionScreen(
+          context: context,
+          selectedNode: widget.selectedNode,
+          onComplete: widget.onDone,
+        );
       } else {
         // For mosque type or onboarding flow, just complete
         widget.onDone?.call();
@@ -150,48 +155,6 @@ class _MosqueInputIdState extends ConsumerState<MosqueInputId> {
           error = S.of(context).backendError;
         });
       }
-    }
-  }
-
-  Future<void> _checkAndShowPermissionScreen() async {
-    if (!mounted) return;
-
-    // Check if device is rooted - rooted devices auto-grant permissions
-    final isRooted = await PermissionsManager.shouldAutoInitializePermissions();
-
-    if (isRooted) {
-      // Rooted devices don't need permission screen, just complete
-      widget.onDone?.call();
-      return;
-    }
-
-    // For non-rooted devices, check actual system permissions
-    final permissionsGranted = await PermissionsManager.arePermissionsGranted();
-
-    // Show permission screen if permissions aren't fully granted
-    // This gives user chance to enable notifications and grant permissions
-    if (!permissionsGranted) {
-      if (!mounted) return;
-
-      // Use await to wait for the screen to be dismissed
-      await Navigator.push(
-        context,
-        PageTransition(
-          type: PageTransitionType.fade,
-          alignment: Alignment.center,
-          child: PermissionScreenWithButton(
-            selectedNode: widget.selectedNode,
-          ),
-        ),
-      );
-
-      // After returning from permission screen, complete the flow
-      if (mounted) {
-        widget.onDone?.call();
-      }
-    } else {
-      // Permissions are granted, just complete
-      widget.onDone?.call();
     }
   }
 

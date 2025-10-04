@@ -426,8 +426,8 @@
   "schedulingAlarms": "Programmation des heures d’activation/désactivation...",
   "alarmsSucessSchedule":"Déclencheurs marche/arrêt programmés avec succès",
   "alarmsScheduleFailure":"Échec de la programmation des déclencheurs marche/arrêt",
-  "prayerTimeNotificationTitle_fr":"Notifications des heures de prière",
-  "prayerTimeNotificationDesc_fr":"Recevez l'adhan aux heures de prière, même lorsque l'application est fermée",
-  "enablePrayerReminders_fr":"Activer les rappels de prière",
-  "enablePrayerRemindersDesc_fr":"Fonctionne automatiquement en arrière-plan"
+  "prayerTimeNotificationTitle":"Notifications des heures de prière",
+  "prayerTimeNotificationDesc":"Recevez l'adhan aux heures de prière, même lorsque l'application est fermée",
+  "enablePrayerReminders":"Activer les rappels de prière",
+  "enablePrayerRemindersDesc":"Fonctionne automatiquement en arrière-plan"
 }

@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:device_info_plus/device_info_plus.dart';
+import 'package:mawaqit/main.dart';
 import 'package:notification_overlay/notification_overlay.dart';
 import 'package:flutter/services.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -75,8 +76,13 @@ class PermissionsManager {
     final androidInfo = await deviceInfo.androidInfo;
 
     if (androidInfo.version.sdkInt >= _androidAlarmPermissionSdk) {
-      final granted = await MethodChannel(_nativeMethodsChannel).invokeMethod('checkExactAlarmPermission');
-      return granted;
+      try {
+        final granted = await MethodChannel(_nativeMethodsChannel).invokeMethod<bool>('checkExactAlarmPermission');
+        return granted ?? false;
+      } on PlatformException catch (e) {
+        logger.e('Failed to check alarm permission', error: e);
+        return false;
+      }
     } else {
       return true;
     }

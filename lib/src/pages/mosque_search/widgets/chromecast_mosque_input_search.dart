@@ -13,6 +13,7 @@ import 'package:mawaqit/src/services/mosque_manager.dart';
 import 'package:mawaqit/src/services/permissions_manager.dart';
 import 'package:mawaqit/src/state_management/on_boarding/on_boarding.dart';
 import 'package:mawaqit/src/widgets/mosque_simple_tile.dart';
+import 'package:mawaqit/src/widgets/permissionScreenNavigator.dart';
 import 'package:page_transition/page_transition.dart';
 import 'package:provider/provider.dart' as Provider;
 import '../../../../i18n/AppLanguage.dart';
@@ -179,7 +180,11 @@ class _ChromeCastMosqueInputSearchState extends ConsumerState<ChromeCastMosqueIn
       }
 
       if (!widget.isOnboarding && !mosqueManager.typeIsMosque) {
-        await _checkAndShowPermissionScreen();
+        await PermissionScreenNavigator.checkAndShowPermissionScreen(
+          context: context,
+          selectedNode: widget.selectedNode,
+          onComplete: widget.onDone,
+        );
       } else {
         widget.onDone?.call();
       }
@@ -195,40 +200,6 @@ class _ChromeCastMosqueInputSearchState extends ConsumerState<ChromeCastMosqueIn
           error = S.of(context).backendError;
         });
       }
-    }
-  }
-
-  Future<void> _checkAndShowPermissionScreen() async {
-    if (!mounted) return;
-
-    final isRooted = await PermissionsManager.shouldAutoInitializePermissions();
-
-    if (isRooted) {
-      widget.onDone?.call();
-      return;
-    }
-
-    final permissionsGranted = await PermissionsManager.arePermissionsGranted();
-
-    if (!permissionsGranted) {
-      if (!mounted) return;
-
-      await Navigator.push(
-        context,
-        PageTransition(
-          type: PageTransitionType.fade,
-          alignment: Alignment.center,
-          child: PermissionScreenWithButton(
-            selectedNode: widget.selectedNode,
-          ),
-        ),
-      );
-
-      if (mounted) {
-        widget.onDone?.call();
-      }
-    } else {
-      widget.onDone?.call();
     }
   }
 

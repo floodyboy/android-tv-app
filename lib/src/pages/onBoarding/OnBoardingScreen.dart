@@ -213,7 +213,7 @@ class _OnBoardingScreenState extends riverpod.ConsumerState<OnBoardingScreen> {
       ),
       OnboardingScreenType.permissionAdhanBackgroundNotification: OnBoardingItem(
         animation: 'settings', // Or whatever animation you prefer
-        widget: OnBoardingPermissionAdhanScreen(
+        widget: PermissionAdhanScreen(
           isOnboarding: true,
           nextButtonFocusNode: Some(nextButtonFocusNode),
         ),
