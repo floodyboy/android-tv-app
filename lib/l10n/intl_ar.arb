@@ -442,8 +442,8 @@
   "schedulingAlarms": "جدولة أوقات التشغيل/الإيقاف...",
   "alarmsSucessSchedule":"تمت جدولة مشغلات التشغيل/الإيقاف بنجاح",
   "alarmsScheduleFailure":"فشل في جدولة مشغلات التشغيل/الإيقاف",
-  "prayerTimeNotificationTitle":"إشعارات أوقات الصلاة",
+  "prayerTimeNotificationTitle":"أذان أوقات الصلاة",
   "prayerTimeNotificationDesc":"استقبل الأذان في أوقات الصلاة، حتى عند إغلاق التطبيق",
-  "enablePrayerReminders":"تفعيل تذكيرات الصلاة",
+  "enablePrayerReminders":"تفعيل أذان الصلاة",
   "enablePrayerRemindersDesc":"يعمل تلقائيًا في الخلفية"
 }

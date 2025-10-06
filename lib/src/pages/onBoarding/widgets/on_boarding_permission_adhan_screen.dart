@@ -7,6 +7,7 @@ import 'package:mawaqit/src/services/notification/prayer_schedule_service.dart';
 import 'package:mawaqit/src/services/user_preferences_manager.dart';
 import 'package:mawaqit/src/services/permissions_manager.dart';
 import 'package:mawaqit/src/services/mosque_manager.dart';
+import 'package:mawaqit/src/widgets/ScreenWithAnimation.dart';
 import 'package:provider/provider.dart';
 import 'package:sizer/sizer.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
@@ -15,12 +16,18 @@ class PermissionAdhanScreen extends StatelessWidget {
   final VoidCallback? onNext;
   final bool isOnboarding;
   final fp.Option<FocusNode> nextButtonFocusNode;
+  final bool showAppBar;
+  final bool useAnimation;
+  final String? animationName;
 
   const PermissionAdhanScreen({
     super.key,
     this.onNext,
     this.isOnboarding = false,
     this.nextButtonFocusNode = const fp.None(),
+    this.showAppBar = false,
+    this.useAnimation = false,
+    this.animationName,
   });
 
   Future<void> _handleToggle(BuildContext context, UserPreferencesManager userPrefs, bool value) async {
@@ -37,6 +44,8 @@ class PermissionAdhanScreen extends StatelessWidget {
       if (!permissionsGranted) {
         // You could show a snackbar or dialog here
       }
+    } else {
+      await PrayerScheduleService.clearAllScheduledPrayers();
     }
 
     if (!isOnboarding) {
@@ -102,27 +111,47 @@ class PermissionAdhanScreen extends StatelessWidget {
     // Adjust width factor based on orientation
     final double widthFactor = isPortrait ? 0.9 : 0.75;
 
-    return Material(
-      child: FractionallySizedBox(
-        widthFactor: widthFactor,
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            _buildHeader(theme, tr, headerFontSize, subtitleFontSize, context),
-            SizedBox(height: isPortrait ? 3.h : 4.h),
-            _buildToggleSection(
-              context: context,
-              theme: theme,
-              tr: tr,
-              userPrefs: userPrefs,
-              titleFontSize: titleFontSize,
-              descriptionFontSize: descriptionFontSize,
-              isPortrait: isPortrait,
-            ),
-          ],
-        ),
+    final content = FractionallySizedBox(
+      widthFactor: widthFactor,
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          _buildHeader(theme, tr, headerFontSize, subtitleFontSize, context),
+          SizedBox(height: isPortrait ? 3.h : 4.h),
+          _buildToggleSection(
+            context: context,
+            theme: theme,
+            tr: tr,
+            userPrefs: userPrefs,
+            titleFontSize: titleFontSize,
+            descriptionFontSize: descriptionFontSize,
+            isPortrait: isPortrait,
+          ),
+        ],
+      ),
+    );
+
+    // If using animation, wrap in ScreenWithAnimationWidget
+    if (useAnimation) {
+      return ScreenWithAnimationWidget(
+        animation: animationName ?? 'settings',
+        hasBackButton: showAppBar,
+        child: Center(child: content),
+      );
+    }
+
+    // Otherwise, use standard Scaffold with optional AppBar
+    return Scaffold(
+      appBar: showAppBar
+          ? AppBar(
+              backgroundColor: Colors.transparent,
+              elevation: 0,
+            )
+          : null,
+      body: SafeArea(
+        child: Center(child: content),
       ),
     );
   }

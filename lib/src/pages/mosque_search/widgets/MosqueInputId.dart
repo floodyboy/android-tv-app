@@ -78,94 +78,94 @@ class _MosqueInputIdState extends ConsumerState<MosqueInputId> {
     }
   }
 
-void _setMosqueId(String mosqueId) async {
-  if (mosqueId.isEmpty) {
-    if (!mounted) return;
-    return setState(() => error = S.of(context).missingMosqueId);
-  }
-  if (int.tryParse(mosqueId) == null) {
-    if (!mounted) return;
-    return setState(() => error = S.of(context).mosqueIdIsNotValid(mosqueId));
-  }
-
-  if (!mounted) return;
-  setState(() {
-    error = null;
-    loading = true;
-  });
-  
-  final mosqueManager = context.read<MosqueManager>();
-
-  await mosqueManager.searchMosqueWithId(mosqueId).then((value) {
-    if (!mounted) return; // Check before setState
-    setState(() {
-      searchOutput = value;
-      loading = false;
-    });
-  }).catchError((e, stack) {
-    debugPrintStack(stackTrace: stack, label: e.toString());
-    if (!mounted) return; // Check before setState
-    
-    if (e is InvalidMosqueId) {
-      setState(() {
-        loading = false;
-        error = S.of(context).mosqueIdIsNotValid(mosqueId);
-      });
-    } else {
-      setState(() {
-        loading = false;
-        error = S.of(context).backendError;
-      });
+  void _setMosqueId(String mosqueId) async {
+    if (mosqueId.isEmpty) {
+      if (!mounted) return;
+      return setState(() => error = S.of(context).missingMosqueId);
     }
-  });
-}
+    if (int.tryParse(mosqueId) == null) {
+      if (!mounted) return;
+      return setState(() => error = S.of(context).mosqueIdIsNotValid(mosqueId));
+    }
 
-Future<void> _handleMosqueSelection() async {
-  final mosqueManager = context.read<MosqueManager>();
+    if (!mounted) return;
+    setState(() {
+      error = null;
+      loading = true;
+    });
 
-  try {
-    await mosqueManager.setMosqueUUid(searchOutput!.uuid.toString());
+    final mosqueManager = context.read<MosqueManager>();
 
-    final hadithLangCode = await context.read<AppLanguage>().getHadithLanguage(mosqueManager);
-    ref.read(randomHadithNotifierProvider.notifier).fetchAndCacheHadith(language: hadithLangCode);
+    await mosqueManager.searchMosqueWithId(mosqueId).then((value) {
+      if (!mounted) return; // Check before setState
+      setState(() {
+        searchOutput = value;
+        loading = false;
+      });
+    }).catchError((e, stack) {
+      debugPrintStack(stackTrace: stack, label: e.toString());
+      if (!mounted) return; // Check before setState
 
-    // Set the mosque type in the provider
-    if (searchOutput != null) {
-      if (searchOutput?.type == "MOSQUE") {
-        ref.read(mosqueManagerProvider.notifier).state = fp.Option.fromNullable(SearchSelectionType.mosque);
+      if (e is InvalidMosqueId) {
+        setState(() {
+          loading = false;
+          error = S.of(context).mosqueIdIsNotValid(mosqueId);
+        });
       } else {
-        ref.read(mosqueManagerProvider.notifier).state = fp.Option.fromNullable(SearchSelectionType.home);
+        setState(() {
+          loading = false;
+          error = S.of(context).backendError;
+        });
+      }
+    });
+  }
+
+  Future<void> _handleMosqueSelection() async {
+    final mosqueManager = context.read<MosqueManager>();
+
+    try {
+      await mosqueManager.setMosqueUUid(searchOutput!.uuid.toString());
+
+      final hadithLangCode = await context.read<AppLanguage>().getHadithLanguage(mosqueManager);
+      ref.read(randomHadithNotifierProvider.notifier).fetchAndCacheHadith(language: hadithLangCode);
+
+      // Set the mosque type in the provider
+      if (searchOutput != null) {
+        if (searchOutput?.type == "MOSQUE") {
+          ref.read(mosqueManagerProvider.notifier).state = fp.Option.fromNullable(SearchSelectionType.mosque);
+        } else {
+          ref.read(mosqueManagerProvider.notifier).state = fp.Option.fromNullable(SearchSelectionType.home);
+        }
+      }
+
+      if (!mounted) return; // Check before navigation/callback
+
+      // Only check permissions if NOT in onboarding flow
+      if (!widget.isOnboarding && searchOutput?.type != "MOSQUE") {
+        await PermissionScreenNavigator.checkAndShowPermissionScreen(
+          context: context,
+          selectedNode: widget.selectedNode,
+          onComplete: widget.onDone,
+        );
+      } else {
+        widget.onDone?.call();
+      }
+    } catch (e, stack) {
+      if (!mounted) return; // Check before setState
+
+      if (e is InvalidMosqueId) {
+        setState(() {
+          loading = false;
+          error = S.of(context).slugError;
+        });
+      } else {
+        setState(() {
+          loading = false;
+          error = S.of(context).backendError;
+        });
       }
     }
-
-    if (!mounted) return; // Check before navigation/callback
-
-    // Only check permissions if NOT in onboarding flow
-    if (!widget.isOnboarding && searchOutput?.type != "MOSQUE") {
-      await PermissionScreenNavigator.checkAndShowPermissionScreen(
-        context: context,
-        selectedNode: widget.selectedNode,
-        onComplete: widget.onDone,
-      );
-    } else {
-      widget.onDone?.call();
-    }
-  } catch (e, stack) {
-    if (!mounted) return; // Check before setState
-    
-    if (e is InvalidMosqueId) {
-      setState(() {
-        loading = false;
-        error = S.of(context).slugError;
-      });
-    } else {
-      setState(() {
-        loading = false;
-        error = S.of(context).backendError;
-      });
-    }
   }
-}
 
   @override
   void dispose() {
