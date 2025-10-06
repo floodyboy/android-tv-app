@@ -145,7 +145,11 @@ class _MosqueInputIdState extends ConsumerState<MosqueInputId> {
         await PermissionScreenNavigator.checkAndShowPermissionScreen(
           context: context,
           selectedNode: widget.selectedNode,
-          onComplete: widget.onDone,
+          onComplete: () {
+            if (mounted) {
+              widget.onDone?.call();
+            }
+          },
         );
       } else {
         widget.onDone?.call();

@@ -23,6 +23,8 @@ class _PermissionScreenWithButtonState extends State<PermissionScreenWithButton>
   Future<void> _handleDone() async {
     if (_isSaving) return;
 
+    if (!mounted) return;
+
     setState(() {
       _isSaving = true;
     });
@@ -31,10 +33,8 @@ class _PermissionScreenWithButtonState extends State<PermissionScreenWithButton>
       // Schedule notifications if user enabled them
       await PermissionAdhanScreen.scheduleIfEnabled(context);
 
-      // Close the screen
-      if (mounted) {
-        Navigator.of(context).pop();
-      }
+      if (!mounted) return;
+      Navigator.of(context).pop();
     } finally {
       if (mounted) {
         setState(() {
