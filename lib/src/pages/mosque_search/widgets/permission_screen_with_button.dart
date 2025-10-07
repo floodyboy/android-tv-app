@@ -18,36 +18,8 @@ class PermissionScreenWithButton extends StatefulWidget {
 }
 
 class _PermissionScreenWithButtonState extends State<PermissionScreenWithButton> {
-  bool _isSaving = false;
-
-  Future<void> _handleDone() async {
-    if (_isSaving) return;
-
-    if (!mounted) return;
-
-    setState(() {
-      _isSaving = true;
-    });
-
-    try {
-      // Schedule notifications if user enabled them
-      await PermissionAdhanScreen.scheduleIfEnabled(context);
-
-      if (!mounted) return;
-      Navigator.of(context).pop();
-    } finally {
-      if (mounted) {
-        setState(() {
-          _isSaving = false;
-        });
-      }
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-
     return Scaffold(
       body: Column(
         children: [
@@ -56,39 +28,6 @@ class _PermissionScreenWithButtonState extends State<PermissionScreenWithButton>
               child: PermissionAdhanScreen(
                 isOnboarding: false,
                 nextButtonFocusNode: widget.selectedNode,
-              ),
-            ),
-          ),
-          SafeArea(
-            child: Padding(
-              padding: const EdgeInsets.all(16),
-              child: ElevatedButton(
-                onPressed: _isSaving ? null : _handleDone,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: theme.primaryColor,
-                  foregroundColor: Colors.white,
-                  disabledBackgroundColor: theme.primaryColor.withOpacity(0.6),
-                  minimumSize: const Size(double.infinity, 50),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                ),
-                child: _isSaving
-                    ? const SizedBox(
-                        height: 20,
-                        width: 20,
-                        child: CircularProgressIndicator(
-                          strokeWidth: 2,
-                          valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-                        ),
-                      )
-                    : Text(
-                        S.of(context).ok,
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
               ),
             ),
           ),
