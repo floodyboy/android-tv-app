@@ -179,15 +179,15 @@ class _ChromeCastMosqueInputSearchState extends ConsumerState<ChromeCastMosqueIn
         ref.read(mosqueManagerProvider.notifier).state = Option.fromNullable(SearchSelectionType.home);
       }
 
-      if (!widget.isOnboarding && !mosqueManager.typeIsMosque) {
+/*       if (!widget.isOnboarding && !mosqueManager.typeIsMosque) {
         await PermissionScreenNavigator.checkAndShowPermissionScreen(
           context: context,
           selectedNode: widget.selectedNode,
           onComplete: widget.onDone,
         );
-      } else {
-        widget.onDone?.call();
-      }
+      } else { */
+      widget.onDone?.call();
+      /* } */
     } catch (e, stack) {
       if (e is InvalidMosqueId) {
         setState(() {

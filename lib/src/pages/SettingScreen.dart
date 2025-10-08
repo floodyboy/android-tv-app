@@ -243,7 +243,7 @@ class _SettingScreenState extends ConsumerState<SettingScreen> {
                       );
                     },
                   ),
-                  Consumer(
+/*                   Consumer(
                     builder: (context, ref, child) {
                       final isDeviceRooted = ref.watch(onBoardingProvider).maybeWhen(
                             orElse: () => false,
@@ -265,7 +265,7 @@ class _SettingScreenState extends ConsumerState<SettingScreen> {
                       }
                       return SizedBox.shrink();
                     },
-                  ),
+                  ), */
                   Divider(),
                   SizedBox(height: 10),
                   Text(

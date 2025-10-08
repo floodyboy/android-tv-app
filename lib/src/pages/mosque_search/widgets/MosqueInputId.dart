@@ -141,7 +141,7 @@ class _MosqueInputIdState extends ConsumerState<MosqueInputId> {
       if (!mounted) return; // Check before navigation/callback
 
       // Only check permissions if NOT in onboarding flow
-      if (!widget.isOnboarding && searchOutput?.type != "MOSQUE") {
+/*       if (!widget.isOnboarding && searchOutput?.type != "MOSQUE") {
         await PermissionScreenNavigator.checkAndShowPermissionScreen(
           context: context,
           selectedNode: widget.selectedNode,
@@ -151,9 +151,9 @@ class _MosqueInputIdState extends ConsumerState<MosqueInputId> {
             }
           },
         );
-      } else {
-        widget.onDone?.call();
-      }
+      } else { */
+      widget.onDone?.call();
+      /*   } */
     } catch (e, stack) {
       if (!mounted) return; // Check before setState
 
