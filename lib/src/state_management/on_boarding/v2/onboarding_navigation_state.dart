@@ -15,7 +15,8 @@ enum OnboardingScreenType {
   mosqueName,
   chromecastMosqueId,
   chromecastMosqueName,
-  permissionAdhanBackgroundNotification
+/*   permissionAdhanBackgroundNotification
+ */
 }
 
 class OnboardingNavigationState {
@@ -59,7 +60,8 @@ class OnboardingNavigationState {
     return switch (currentScreenType) {
       OnboardingScreenType.announcement when isAtLastScreen => true,
       OnboardingScreenType.mosqueId ||
-      OnboardingScreenType.permissionAdhanBackgroundNotification ||
+/*       OnboardingScreenType.permissionAdhanBackgroundNotification ||
+ */
       OnboardingScreenType.chromecastMosqueId when isMosqueSelected && isAtLastScreen =>
         true,
       _ => false,
