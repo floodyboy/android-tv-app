@@ -456,5 +456,9 @@
   "finish": "Finish",
   "schedulingAlarms":"Scheduling on/off times...",
   "alarmsSucessSchedule":"On/Off triggers scheduled successfully",
-  "alarmsScheduleFailure":"Failed to schedule On/Off triggers"
+  "alarmsScheduleFailure":"Failed to schedule On/Off triggers",
+  "prayerTimeNotificationTitle":"Prayer Time Notifications",
+  "prayerTimeNotificationDesc":"Get the adhan at prayer times, even when the app is closed",
+  "enablePrayerReminders":"Enable Prayer Reminders",
+  "enablePrayerRemindersDesc":"Works automatically in the background"
 }

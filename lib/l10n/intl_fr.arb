@@ -425,6 +425,9 @@
   "streamError": "Une erreur est survenue lors du streaming",
   "schedulingAlarms": "Programmation des heures d’activation/désactivation...",
   "alarmsSucessSchedule":"Déclencheurs marche/arrêt programmés avec succès",
-  "alarmsScheduleFailure":"Échec de la programmation des déclencheurs marche/arrêt"
-
+  "alarmsScheduleFailure":"Échec de la programmation des déclencheurs marche/arrêt",
+  "prayerTimeNotificationTitle":"Notifications des heures de prière",
+  "prayerTimeNotificationDesc":"Recevez l'adhan aux heures de prière, même lorsque l'application est fermée",
+  "enablePrayerReminders":"Activer les rappels de prière",
+  "enablePrayerRemindersDesc":"Fonctionne automatiquement en arrière-plan"
 }
