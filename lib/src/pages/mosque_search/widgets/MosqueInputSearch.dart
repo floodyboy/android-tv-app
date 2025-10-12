@@ -211,16 +211,16 @@ class _MosqueInputSearchState extends ConsumerState<MosqueInputSearch> {
         ref.read(mosqueManagerProvider.notifier).state = Option.fromNullable(SearchSelectionType.home);
       }
 
-      // Only check permissions if NOT in onboarding flow
+/*       // Only check permissions if NOT in onboarding flow
       if (!widget.isOnboarding && !mosqueManager.typeIsMosque) {
         await PermissionScreenNavigator.checkAndShowPermissionScreen(
           context: context,
           selectedNode: widget.selectedNode,
           onComplete: widget.onDone,
         );
-      } else {
-        widget.onDone?.call();
-      }
+      } else { */
+      widget.onDone?.call();
+      /* } */
     } catch (e, stack) {
       if (e is InvalidMosqueId) {
         setState(() {

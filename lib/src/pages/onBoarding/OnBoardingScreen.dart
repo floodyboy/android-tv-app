@@ -211,7 +211,7 @@ class _OnBoardingScreenState extends riverpod.ConsumerState<OnBoardingScreen> {
         enablePreviousButton: true,
         skip: () => !context.read<MosqueManager>().typeIsMosque,
       ),
-      OnboardingScreenType.permissionAdhanBackgroundNotification: OnBoardingItem(
+/*       OnboardingScreenType.permissionAdhanBackgroundNotification: OnBoardingItem(
         animation: 'settings', // Or whatever animation you prefer
         widget: PermissionAdhanScreen(
           isOnboarding: true,
@@ -219,7 +219,7 @@ class _OnBoardingScreenState extends riverpod.ConsumerState<OnBoardingScreen> {
         ),
         enableNextButton: true,
         enablePreviousButton: true,
-      ),
+      ), */
       OnboardingScreenType.announcement: OnBoardingItem(
         animation: 'search',
         widget: OnBoardingAnnouncementScreens(

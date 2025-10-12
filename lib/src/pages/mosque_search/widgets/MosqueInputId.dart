@@ -80,25 +80,32 @@ class _MosqueInputIdState extends ConsumerState<MosqueInputId> {
 
   void _setMosqueId(String mosqueId) async {
     if (mosqueId.isEmpty) {
+      if (!mounted) return;
       return setState(() => error = S.of(context).missingMosqueId);
     }
     if (int.tryParse(mosqueId) == null) {
-      return setState(() => S.of(context).mosqueIdIsNotValid(mosqueId));
+      if (!mounted) return;
+      return setState(() => error = S.of(context).mosqueIdIsNotValid(mosqueId));
     }
 
+    if (!mounted) return;
     setState(() {
       error = null;
       loading = true;
     });
+
     final mosqueManager = context.read<MosqueManager>();
 
     await mosqueManager.searchMosqueWithId(mosqueId).then((value) {
+      if (!mounted) return; // Check before setState
       setState(() {
         searchOutput = value;
         loading = false;
       });
     }).catchError((e, stack) {
       debugPrintStack(stackTrace: stack, label: e.toString());
+      if (!mounted) return; // Check before setState
+
       if (e is InvalidMosqueId) {
         setState(() {
           loading = false;
@@ -131,19 +138,25 @@ class _MosqueInputIdState extends ConsumerState<MosqueInputId> {
         }
       }
 
+      if (!mounted) return; // Check before navigation/callback
+
       // Only check permissions if NOT in onboarding flow
-      // In onboarding, the permission screen is a separate step
-      if (!widget.isOnboarding && searchOutput?.type != "MOSQUE") {
+/*       if (!widget.isOnboarding && searchOutput?.type != "MOSQUE") {
         await PermissionScreenNavigator.checkAndShowPermissionScreen(
           context: context,
           selectedNode: widget.selectedNode,
-          onComplete: widget.onDone,
+          onComplete: () {
+            if (mounted) {
+              widget.onDone?.call();
+            }
+          },
         );
-      } else {
-        // For mosque type or onboarding flow, just complete
-        widget.onDone?.call();
-      }
+      } else { */
+      widget.onDone?.call();
+      /*   } */
     } catch (e, stack) {
+      if (!mounted) return; // Check before setState
+
       if (e is InvalidMosqueId) {
         setState(() {
           loading = false;

@@ -108,10 +108,10 @@ class PermissionsManager {
     final overlayGranted = await _handleOverlayPermissions(deviceModel, isRooted);
 
     // Check for exact alarm permission
-    final alarmPermissionGranted = await _checkAndRequestExactAlarmPermission();
-
+/*     final alarmPermissionGranted = await _checkAndRequestExactAlarmPermission();
+ */
     // Mark permissions as granted only if all permissions were successfully granted
-    if (overlayGranted && alarmPermissionGranted) {
+    if (overlayGranted /* && alarmPermissionGranted */) {
       await _markPermissionsAsGranted();
     }
   }
@@ -135,9 +135,10 @@ class PermissionsManager {
     // Handle overlay permission based on root status
     if (isRooted) {
       return await _handleRootedOverlayPermission(methodChannel);
-    } else {
+    } /*  else {
       return await _handleUserOverlayPermission();
-    }
+    } */
+    return false;
   }
 
   /// Check if device is ONVO
@@ -226,14 +227,14 @@ class PermissionsManager {
     if (isRooted) {
       return true;
     }
-
+/* 
     final androidInfo = await DeviceInfoPlugin().androidInfo;
     final sdkInt = androidInfo.version.sdkInt;
 
     // Android 11 is SDK 30
     // Non-rooted Android 11+ must use permission screen
-    final shouldAutoInit = sdkInt < 30;
+    final shouldAutoInit = sdkInt < 34; */
 
-    return shouldAutoInit;
+    return isRooted;
   }
 }

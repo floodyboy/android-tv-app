@@ -133,15 +133,15 @@ class _ChromeCastMosqueInputIdState extends ConsumerState<ChromeCastMosqueInputI
         }
       }
 
-      if (!widget.isOnboarding && searchOutput?.type != "MOSQUE") {
+/*       if (!widget.isOnboarding && searchOutput?.type != "MOSQUE") {
         await PermissionScreenNavigator.checkAndShowPermissionScreen(
           context: context,
           selectedNode: widget.selectedNode,
           onComplete: widget.onDone,
         );
-      } else {
-        widget.onDone?.call();
-      }
+      } else { */
+      widget.onDone?.call();
+      /* } */
     } catch (e, stack) {
       if (e is InvalidMosqueId) {
         setState(() {
